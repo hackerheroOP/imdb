@@ -103,5 +103,5 @@ commands =
 """
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "setuptools-scm", "mo-installer"]
 build-backend = "setuptools.build_meta"
