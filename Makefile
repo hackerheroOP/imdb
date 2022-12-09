@@ -28,10 +28,10 @@ clean-docs:
 	make -C docs clean
 
 lint:
-	python setup.py flake8
+	flake8 imdb
 
 test:
-	pytest
+	pytest tests
 
 test-all:
 	tox
@@ -44,6 +44,4 @@ docs:
 	$(MAKE) -C docs html
 
 dist: clean
-	python setup.py check -r -s
-	python setup.py sdist
-	python setup.py bdist_wheel
+	python -m build
