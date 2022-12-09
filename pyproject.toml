@@ -1,0 +1,107 @@
+[project]
+name = "cinemagoer"
+version = "2022.12.08"
+description = "Python package to access the IMDb database."
+readme = "README.rst"
+
+authors = [{name = "Davide Alberani", email = "da@mimante.net"}]
+license = {file = "LICENSE.txt"}
+
+keywords = ["imdb", "movie", "database", "cinema", "film",
+            "cast", "actor", "actress", "director", "character",
+            "company", "keywords", "sql", "xml"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Natural Language :: English",
+    "Natural Language :: Italian",
+    "Natural Language :: Turkish",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+requires-python = "~=3.7"
+dependencies = [
+    "lxml",
+    "SQLAlchemy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "flake8-isort",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "polib",
+    "tox",
+]
+
+[project.scripts]
+imdbpy = "imdb.cli:main"
+
+[project.urls]
+"Homepage" = "https://cinemagoer.github.io/"
+"Documentation" = "https://cinemagoer.readthedocs.io/"
+"Repository" = "https://github.com/cinemagoer/cinemagoer"
+
+[tool.setuptools.package-data]
+imdb = ["locale/*/*/*.mo"]
+
+[tool.isort]
+line_length = 120
+multi_line_output = 3
+known_test = "pytest,unittest"
+sections = "FUTURE,TEST,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{311,310,39,38,37,27}, pypy{39,38,37,27}, style, docs
+isolated_build = True
+
+[testenv]
+deps =
+    pytest
+commands =
+    pytest {posargs:tests}
+
+[testenv:coverage]
+deps =
+    {[testenv]deps}
+    pytest-cov
+commands =
+    pytest --cov=imdb --cov-report=term-missing tests
+
+[testenv:style]
+deps =
+    flake8
+    flake8-isort
+commands =
+    flake8 imdb
+
+[testenv:docs]
+deps =
+    sphinx
+    sphinx_rtd_theme
+changedir = docs/
+commands =
+    sphinx-build -b html ./ build/html/
+"""
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
