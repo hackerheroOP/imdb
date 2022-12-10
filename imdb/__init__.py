@@ -95,7 +95,7 @@ class ConfigParserWithCase(configparser.ConfigParser):
         if PY2:
             configparser.ConfigParser.__init__(self, defaults=defaults)
         else:
-            super(configparser.ConfigParser, self).__init__(defaults=defaults)
+            super().__init__(defaults=defaults)
         if confFile is None:
             for confFileName in confFileNames:
                 dotFileName = '.' + confFileName

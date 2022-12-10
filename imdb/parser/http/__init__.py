@@ -114,7 +114,7 @@ class IMDbHTTPSHandler(HTTPSHandler):
         context = ssl.create_default_context()
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
-        super(IMDbHTTPSHandler, self).__init__(context=context)
+        super().__init__(context=context)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         if errcode == 404:
