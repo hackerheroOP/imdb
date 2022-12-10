@@ -1,6 +1,17 @@
-import os.path
+import sys
+from subprocess import CalledProcessError, check_call
 
 import setuptools
 
-locale_dir = os.path.join("imdb", "locale")
-setuptools.setup(locale_src=locale_dir, locale_dir=locale_dir)
+
+def runRebuildmo():
+    """Call the function to rebuild the locales."""
+    try:
+        check_call([sys.executable, "rebuildmo.py"])
+    except CalledProcessError as e:
+        print('ERROR: unable to rebuild .mo files; caught exception %s' % e)
+
+
+runRebuildmo()
+
+setuptools.setup()
