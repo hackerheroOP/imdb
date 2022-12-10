@@ -100,7 +100,7 @@ deps =
     sphinx_rtd_theme
 changedir = docs/
 commands =
-    sphinx-build -b html ./ build/html/
+    sphinx-build -b html ./ _build/
 """
 
 [build-system]
