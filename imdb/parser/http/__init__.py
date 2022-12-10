@@ -89,7 +89,7 @@ class _ModuleProxy:
         return getattr(_sm, name)
 
 
-class _FakeURLOpener(object):
+class _FakeURLOpener:
     """Fake URLOpener object, used to return empty strings instead of
     errors.
     """
@@ -107,7 +107,7 @@ class _FakeURLOpener(object):
         return self.headers
 
 
-class IMDbHTTPSHandler(HTTPSHandler, object):
+class IMDbHTTPSHandler(HTTPSHandler):
     """HTTPSHandler that ignores the SSL certificate."""
     def __init__(self, logger=None, *args, **kwds):
         self._logger = logger
