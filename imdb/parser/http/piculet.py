@@ -34,36 +34,13 @@ from pkgutil import find_loader
 
 __version__ = '1.2b1'
 
-PY2 = sys.version_info < (3, 0)
-
-if PY2:
-    str, bytes = unicode, str
-
-if PY2:
-    from cgi import escape as html_escape
-    from htmlentitydefs import name2codepoint  # noqa: I003
-    from HTMLParser import HTMLParser
-    from StringIO import StringIO
-else:
-    from html import escape as html_escape
-    from html.parser import HTMLParser
-    from io import StringIO
-    from types import MappingProxyType
+from html import escape as html_escape
+from html.parser import HTMLParser
+from io import StringIO
+from types import MappingProxyType
 
 
-if PY2:
-    from contextlib import contextmanager
-
-    @contextmanager
-    def redirect_stdout(new_stdout):
-        """Context manager for temporarily redirecting stdout."""
-        old_stdout, sys.stdout = sys.stdout, new_stdout
-        try:
-            yield new_stdout
-        finally:
-            sys.stdout = old_stdout
-else:
-    from contextlib import redirect_stdout
+from contextlib import redirect_stdout
 
 
 ###########################################################
@@ -87,10 +64,7 @@ class HTMLNormalizer(HTMLParser):
         :param omit_tags: Tags to remove, along with all their content.
         :param omit_attrs: Attributes to remove.
         """
-        if PY2:
-            HTMLParser.__init__(self)
-        else:
-            super().__init__(convert_charrefs=True)
+        super().__init__(convert_charrefs=True)
 
         self.omit_tags = set(omit_tags) if omit_tags is not None else set()     # sig: Set[str]
         self.omit_attrs = set(omit_attrs) if omit_attrs is not None else set()  # sig: Set[str]
@@ -157,23 +131,7 @@ class HTMLNormalizer(HTMLParser):
         if not self._open_omitted_tags:
             # stack empty -> not in omit mode
             line = html_escape(data)
-            print(line.decode('utf-8') if PY2 and isinstance(line, bytes) else line, end='')
-
-    def handle_entityref(self, name):
-        # XXX: doesn't get called if convert_charrefs=True
-        num = name2codepoint.get(name)  # we are sure we're on PY2 here
-        if num is not None:
-            print('&#%(ref)d;' % {'ref': num}, end='')
-
-    def handle_charref(self, name):
-        # XXX: doesn't get called if convert_charrefs=True
-        print('&#%(ref)s;' % {'ref': name}, end='')
-
-    # def feed(self, data):
-        # super().feed(data)
-        # # close all remaining open tags
-        # for tag in reversed(self._open_tags):
-        #     print('</%(tag)s>' % {'tag': tag}, end='')
+            print(line, end='')
 
 
 def html_to_xhtml(document, omit_tags=None, omit_attrs=None):
@@ -248,8 +206,7 @@ else:
                 _apply = child
             else:
                 steps = path.split('/')
-                front, last = steps[:-1], steps[-1]
-                # after dropping PY2: *front, last = path.split('/')
+                *front, last = path.split('/')
                 if last.startswith('@'):
                     _apply = partial(attribute, subpath='/'.join(front), attr=last[1:])
                 else:
@@ -269,7 +226,7 @@ else:
     xpath = lambda e, p: XPath(p)(e)
 
 
-_EMPTY = {} if PY2 else MappingProxyType({})  # empty result singleton
+_EMPTY = MappingProxyType({})  # empty result singleton
 
 
 # sigalias: Reducer = Callable[[Sequence[str]], str]
@@ -373,10 +330,7 @@ class Path(Extractor):
         :param transform: Function to transform extracted value.
         :param foreach: Path to apply for generating a collection of data.
         """
-        if PY2:
-            Extractor.__init__(self, transform=transform, foreach=foreach)
-        else:
-            super().__init__(transform=transform, foreach=foreach)
+        super().__init__(transform=transform, foreach=foreach)
 
         self.path = XPath(path)     # sig: XPath
         """XPath evaluator to apply to get the data."""
@@ -420,10 +374,7 @@ class Rules(Extractor):
         :param transform: Function to transform extracted value.
         :param foreach: Path for generating multiple items.
         """
-        if PY2:
-            Extractor.__init__(self, transform=transform, foreach=foreach)
-        else:
-            super().__init__(transform=transform, foreach=foreach)
+        super().__init__(transform=transform, foreach=foreach)
 
         self.rules = rules  # sig: Sequence[Rule]
         """Rules for generating the data items."""
@@ -594,11 +545,10 @@ def build_tree(document, force_html=False):
     :param force_html: Force to parse from HTML without converting.
     :return: Root element of the XML tree.
     """
-    content = document.encode('utf-8') if PY2 else document
     if _USE_LXML and force_html:
         import lxml.html
-        return lxml.html.fromstring(content)
-    return ElementTree.fromstring(content)
+        return lxml.html.fromstring(document)
+    return ElementTree.fromstring(document)
 
 
 class Registry:

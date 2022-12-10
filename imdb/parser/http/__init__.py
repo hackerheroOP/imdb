@@ -29,7 +29,7 @@ import ssl
 import warnings
 from codecs import lookup
 
-from imdb import PY2, IMDbBase
+from imdb import IMDbBase
 from imdb._exceptions import IMDbDataAccessError, IMDbParserError
 from imdb.parser.http.logging import logger
 from imdb.utils import analyze_title
@@ -48,12 +48,8 @@ from . import (
     topBottomParser
 )
 
-if PY2:
-    from urllib import quote_plus
-    from urllib2 import HTTPSHandler, ProxyHandler, build_opener  # noqa: I003
-else:
-    from urllib.parse import quote_plus
-    from urllib.request import HTTPSHandler, ProxyHandler, build_opener
+from urllib.parse import quote_plus
+from urllib.request import HTTPSHandler, ProxyHandler, build_opener
 
 # Logger for miscellaneous functions.
 _aux_logger = logger.getChild('aux')
@@ -221,10 +217,7 @@ class IMDbURLopener:
             content = response.read()
             self._last_url = response.url
             # Maybe the server is so nice to tell us the charset...
-            if PY2:
-                server_encode = response.headers.getparam('charset') or None
-            else:
-                server_encode = response.headers.get_content_charset(None)
+            server_encode = response.headers.get_content_charset(None)
             # Otherwise, look at the content-type HTML meta tag.
             if server_encode is None and content:
                 begin_h = content.find(b'text/html; charset=')
@@ -376,10 +369,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
     def _retrieve(self, url, size=-1, _noCookies=False):
         """Retrieve the given URL."""
         self._http_logger.debug('fetching url %s (size: %d)', url, size)
-        ret = self.urlOpener.retrieve_unicode(url, size=size)
-        if PY2 and isinstance(ret, str):
-            ret = ret.decode('utf-8')
-        return ret
+        return self.urlOpener.retrieve_unicode(url, size=size)
 
     def _get_search_content(self, kind, ton, results):
         """Retrieve the web page for a given search.
@@ -387,10 +377,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
         or 'co' (for companies).
         ton is the title or the name to search.
         results is the maximum number of results to be retrieved."""
-        if PY2:
-            params = 'q=%s&s=%s' % (quote_plus(ton, safe=''.encode('utf8')), kind.encode('utf8'))
-        else:
-            params = 'q=%s&s=%s' % (quote_plus(ton, safe=''), kind)
+        params = 'q=%s&s=%s' % (quote_plus(ton, safe=''), kind)
         if kind == 'ep':
             params = params.replace('s=ep&', 's=tt&ttype=ep&', 1)
         cont = self._retrieve(self.urls['find'] % params)

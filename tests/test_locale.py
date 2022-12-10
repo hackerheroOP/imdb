@@ -1,12 +1,10 @@
 from pytest import fixture
 
 import os
-import sys
 
 import imdb.locale
 
-if sys.version_info.major >= 3:
-    from importlib import reload
+from importlib import reload
 
 
 @fixture

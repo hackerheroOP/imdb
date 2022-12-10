@@ -25,7 +25,7 @@ def test_found_movies_should_have_movie_ids(ia):
 
 def test_found_movies_should_have_titles(ia):
     movies = ia.search_movie_advanced('matrix', results=50)
-    assert all(isinstance(m['title'], (str, unicode) if sys.version_info < (3,) else str) for m in movies)
+    assert all(isinstance(m['title'], str) for m in movies)
 
 
 def test_selected_movie_should_have_correct_kind(ia):
